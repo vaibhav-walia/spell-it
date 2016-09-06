@@ -12,8 +12,8 @@ var List = require('./models/list.js');
 
 
 var args = process.argv.slice(2);
-//var uri = "mongodb://" + args[0] + ":" + args[1] + "ds019756.mlab.com:19756/spell-it";
-var uri = "mongodb://vaibhav:welcome1@ds019756.mlab.com:19756/spell-it";
+var uri = "mongodb://" + args[0] + ":" + args[1] + "@ds019756.mlab.com:19756/spell-it";
+
 //CORS middleware
 var allowCrossDomain = function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
