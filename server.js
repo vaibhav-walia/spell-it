@@ -45,12 +45,13 @@ router.get('/', function(req, res) {
   });
 });
 
-router.route('/register')
+router.route('/users/:user')
   .post(function(req, res) {
     var username = req.body.username;
     var password = req.body.password;
     if (!username || !password) {
-      res.json({
+      res.status(400).json({
+        success: false,
         message: 'username or password missing!'
       });
     }
@@ -60,16 +61,50 @@ router.route('/register')
         password: password
       });
       newUser.save(function(err) {
-        if (err)
+        if (err) {
           res.send(err);
-        res.json({
-          message: 'User ' + username + ' created'
-        });
+        }
+        else {
+          res.json({
+            success: true,
+            message: 'User ' + username + ' created'
+          });
+        }
+      });
+    }
+  })
+  .get(function(req, res) {
+    if (!req.params.user) {
+      res.status(400).json({
+        success: false,
+        message: 'username missing!'
+      });
+    }
+    else {
+      User.findOne({
+        username: req.params.user
+      }, function(err, user) {
+        if (err) {
+          res.send(err);
+        }
+        else if (!user) {
+          res.status(400).json({
+            success: false,
+            message: 'User not found'
+          });
+        }
+        else {
+          user.password = '';
+          res.json({
+            success: true,
+            message: '',
+            data: user
+          });
+        }
       });
     }
   });
-
-router.route('/userLists/:user')
+router.route('/users/:user/lists')
   .get(function(req, res) {
     //return all the lists for a user
     User.findOne({
@@ -77,29 +112,68 @@ router.route('/userLists/:user')
     }, function(err, user) {
       if (err) {
         res.send(err);
-        throw err;
       }
       if (!user) {
         //user not found
-        res.json({
+        res.status(400).json({
           success: false,
           message: 'User not found'
         });
       }
       else {
-        //user was found, get all lists
+        //return all lists for the user
         List.find({
           username: req.params.user
         }, function(err, lists) {
           if (err) {
             res.send(err);
-            throw err;
           }
           else {
             res.json({
               success: true,
               message: '',
               data: lists
+            });
+          }
+        });
+      }
+    });
+  });
+router.route('/users/:user/lists/:list')
+  .get(function(req, res) {
+    User.findOne({
+      username: req.params.user
+    }, function(err, user) {
+      if (err) {
+        res.send(err);
+      }
+      if (!user) {
+        //user not found
+        res.status(400).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+      else {
+        //user was found, get the specific list 
+        List.findOne({
+          username: req.params.user,
+          name: req.params.list
+        }, function(err, list) {
+          if (err) {
+            res.send(err);
+          }
+          else if (!list) {
+            res.status(400).json({
+              success: false,
+              message: 'List not found!'
+            });
+          }
+          else {
+            res.json({
+              success: true,
+              message: '',
+              data: list
             });
           }
         });
@@ -114,30 +188,34 @@ router.route('/userLists/:user')
       function(err, user) {
         if (err) {
           res.send(err);
-          throw err;
         }
         else {
           //user exists, check if list is empty 
           var list = req.body.list;
           if (!list || !list.words || list.words.length === 0) {
-            res.json({
+            res.status(400).json({
               success: false,
               message: 'List is empty'
             });
           }
           else {
             //valid list, add
+            if (req.params.list)
+              list.name = req.params.list;
             var newList = new List(list);
             newList.save(function(err) {
-              if (err)
+              if (err) {
                 res.send(err);
-              res.json({
-                message: 'List ' + list.name + ' created'
-              });
+              }
+              else {
+                res.json({
+                  message: 'List ' + list.name + ' created'
+                });
+              }
             });
           }
         }
-      })
+      });
   });
 
 app.use('/api', router);
