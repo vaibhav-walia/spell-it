@@ -211,9 +211,9 @@ router.route('/users/:user/lists/:list')
         }
       });
   });
-  
-  router.route("/users/:user/lists/:list/words/:word")
-  .post(function(req,res){
+
+router.route("/users/:user/lists/:list/words/:word")
+  .post(function(req, res) {
     //check if user exists
     User.findOne({
       username: req.params.user
@@ -245,25 +245,37 @@ router.route('/users/:user/lists/:list')
           }
           else {
             //list found, add word
-            //[To-Do] validate word
-            list.words.push(req.params.word);
-            list.save(function(err){
-              if(err){
-                res.send(err);
-              }
-              else{
-                res.json({
-                  success: true,
-                  message: 'Word ' + req.params.word + ' added to list '+ req.params.list + ' of user ' + req.params.user
-                });
-              }
-            });
+            //[To-Do] validate word, should be a dictionary word
+            //check if the word already exists in the list 
+            var index = list.words.indexOf(req.params.word);
+            if (index > -1) {
+              //exists
+             res.status(400).json({
+                success: false,
+                message: 'The word ' + req.params.word + ' already exists in the list ' + req.params.list + ' of user ' + req.params.user
+              });
+            }
+            else {
+              //does not exist 
+               list.words.push(req.params.word);
+              list.save(function(err) {
+                if (err) {
+                  res.send(err);
+                }
+                else {
+                  res.json({
+                    success: true,
+                    message: 'Word ' + req.params.word + ' added to list ' + req.params.list + ' of user ' + req.params.user
+                  });
+                }
+              });
+            }
           }
         });
       }
     });
   })
-  .delete(function(req,res){
+  .delete(function(req, res) {
     //check if user exists
     User.findOne({
       username: req.params.user
@@ -297,28 +309,28 @@ router.route('/users/:user/lists/:list')
             //list found
             //check if word exists in list
             var index = list.words.indexOf(req.params.word);
-            if( index > -1 ){
+            if (index > -1) {
               //word found, remove 
-              list.words.splice(index,1);
+              list.words.splice(index, 1);
               //save the list 
-              list.save(function(err){
-              if(err){
-                res.send(err);
-              }
-              else{
-                res.json({
-                  success: true,
-                  message: 'Word ' + req.params.word + ' removed from list '+ req.params.list + ' of user ' + req.params.user
-                });
-              }
-            });
+              list.save(function(err) {
+                if (err) {
+                  res.send(err);
+                }
+                else {
+                  res.json({
+                    success: true,
+                    message: 'Word ' + req.params.word + ' removed from list ' + req.params.list + ' of user ' + req.params.user
+                  });
+                }
+              });
             }
-            else{
+            else {
               //word not found
               res.status(400).json({
-              success: false,
-              message: 'Word '+ req.params.word+ 'not found in list '+ req.params.list + ' of user ' + req.params.user
-            });
+                success: false,
+                message: 'Word ' + req.params.word + 'not found in list ' + req.params.list + ' of user ' + req.params.user
+              });
             }
           }
         });
