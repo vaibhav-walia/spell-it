@@ -9,6 +9,29 @@
     <script src="https://unpkg.com/babel-core@5.8.38/browser.min.js"></script>
     <script src="https://unpkg.com/jquery@3.1.0/dist/jquery.min.js"></script>
     <script src="https://unpkg.com/remarkable@1.6.2/dist/remarkable.min.js"></script>
+	<style>
+	.testBox{
+	position: relative;
+	background: grey;
+	height: 200px;
+	width: 60%;
+	margin:  auto;
+	padding: 20px;
+	resize: both;
+	overflow: auto;
+	}
+	.question {
+	 background: black;
+	 color: white;
+     width: 300px;
+     height: 150x;
+     margin: -55px 0 0 -170px;
+     position: absolute;
+     top: 50%;
+     left: 50%;
+     padding: 20px;
+	}
+	</style>
   </head>
   <body>
     <div id="content"></div>
@@ -87,18 +110,22 @@
      return ( < div className = "question" >
          < div >
 		 
-          < button className = "p"
+          
+		  < audio controls src = {
+           this.constructUrl(this.state.words[this.state.index])
+         } >
+         < /audio>
+		 
+		 <br/> 
+		 
+		 < button className = "p"
           onClick = {
             this.prev
           } > Prev 
 		  < /button> 
 		 
 
-         < audio controls src = {
-           this.constructUrl(this.state.words[this.state.index])
-         } >
-         < /audio> {
-         } 
+           
 		 
           < button className = "n"
            onClick = {
