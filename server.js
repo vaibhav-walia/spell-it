@@ -1,15 +1,10 @@
 var express = require('express')
 var app = express(); //express();
 var https = require('https');
-
 var mongodb = require('mongodb');
 var mongoose = require('mongoose');
-
-
 var User = require('./models/user.js');
 var List = require('./models/list.js');
-
-
 
 var args = process.argv.slice(2);
 var uri = "mongodb://" + args[0] + ":" + args[1] + "@ds019756.mlab.com:19756/spell-it";
@@ -19,7 +14,6 @@ var allowCrossDomain = function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-access-token');
-
   next();
 };
 
@@ -37,7 +31,7 @@ app.use(bodyParser.json());
 mongoose.connect(uri);
 
 //ROUTES
-//==============================================================================
+//============================================================
 var router = express.Router();
 router.get('/', function(req, res) {
   res.json({
