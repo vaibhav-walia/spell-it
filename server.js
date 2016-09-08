@@ -211,6 +211,120 @@ router.route('/users/:user/lists/:list')
         }
       });
   });
+  
+  router.route("/users/:user/lists/:list/words/:word")
+  .post(function(req,res){
+    //check if user exists
+    User.findOne({
+      username: req.params.user
+    }, function(err, user) {
+      if (err) {
+        res.send(err);
+      }
+      if (!user) {
+        //user not found
+        res.status(400).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+      else {
+        //user was found, get the specific list 
+        List.findOne({
+          username: req.params.user,
+          name: req.params.list
+        }, function(err, list) {
+          if (err) {
+            res.send(err);
+          }
+          else if (!list) {
+            res.status(400).json({
+              success: false,
+              message: 'List not found!'
+            });
+          }
+          else {
+            //list found, add word
+            //[To-Do] validate word
+            list.words.push(req.params.word);
+            list.save(function(err){
+              if(err){
+                res.send(err);
+              }
+              else{
+                res.json({
+                  success: true,
+                  message: 'Word ' + req.params.word + ' added to list '+ req.params.list + ' of user ' + req.params.user
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+  })
+  .delete(function(req,res){
+    //check if user exists
+    User.findOne({
+      username: req.params.user
+    }, function(err, user) {
+      if (err) {
+        res.send(err);
+      }
+      if (!user) {
+        //user not found
+        res.status(400).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+      else {
+        //user was found, get the specific list 
+        List.findOne({
+          username: req.params.user,
+          name: req.params.list
+        }, function(err, list) {
+          if (err) {
+            res.send(err);
+          }
+          else if (!list) {
+            res.status(400).json({
+              success: false,
+              message: 'List not found!'
+            });
+          }
+          else {
+            //list found
+            //check if word exists in list
+            var index = list.words.indexOf(req.params.word);
+            if( index > -1 ){
+              //word found, remove 
+              list.words.splice(index,1);
+              //save the list 
+              list.save(function(err){
+              if(err){
+                res.send(err);
+              }
+              else{
+                res.json({
+                  success: true,
+                  message: 'Word ' + req.params.word + ' removed from list '+ req.params.list + ' of user ' + req.params.user
+                });
+              }
+            });
+            }
+            else{
+              //word not found
+              res.status(400).json({
+              success: false,
+              message: 'Word '+ req.params.word+ 'not found in list '+ req.params.list + ' of user ' + req.params.user
+            });
+            }
+          }
+        });
+      }
+    });
+  });
 
 app.use('/api', router);
 app.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function() {
